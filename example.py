@@ -22,7 +22,7 @@ package = StormCast.load_default_package()
 model = StormCast.load_model(package)
 
 # Create the data source
-data = HRRR()
+data = HRRR(max_workers=2,cache=True)
 
 # Create and set the conditioning data source
 conditioning_data_source = GFS_FX()
@@ -60,8 +60,72 @@ print(io.root.tree())
 #
 # Notice that the Zarr IO function has additional APIs to interact with the stored data.
 
-f = open("outputs/model_output.txt", "w")
-f.write(io)
+# with open("outputs/model_output.txt", "w") as f:
+#     # for key in io.root.keys():
+#     f.write(f"{io.root.tree()}")
+    
+#     # f.write(io.root.keys())
+
+from pprint import pprint
+import numpy as np
+
+# # Assume these are 1D arrays
+lats = io["lat"][:]
+lons = io["lon"][:]
+
+# Convert -90 to 270 if longitudes are 0–360
+target_lat = 35.0
+target_lon = 270.0 if lons.max() > 180 else -90.0
+
+# Find the closest indices
+lat_idx = np.abs(lats - target_lat).argmin()
+lon_idx = np.abs(lons - target_lon).argmin()
+
+# Select a specific lat/lon or use slicing
+lat_idx = 10  # choose appropriate index
+lon_idx = 20
+
+# Select a specific time index (e.g., first timestep)
+time_idx = 0
+
+# lets get the data for {lon}, {lat}
+# structured_output = {
+#     "time": "",
+#     "location": {
+#         "latitude": lats[lat_idx],
+#         "longitude": lons[lon_idx]
+#     },
+#     "forecast": {
+#         "u10": "",
+#         "v10": "",
+#         "mean_sea_level_pressure": "",
+#         "total_precipitation": "",
+#         "cloud_cover": "",
+#         "temperature_2m": io["t2m"][0, 1]
+#     }
+# }
+def build_forecast_dict(io, lat_idx, lon_idx, lead_time_idx=0):
+    return {
+        "time": int(io["time"][0]),
+        "location": {
+            "latitude": float(io["lat"][lat_idx, lon_idx]),
+            "longitude": float(io["lon"][lat_idx, lon_idx])
+        },
+        "forecast": {
+            "u10": float(io["u10m"][0, lead_time_idx, lat_idx, lon_idx]),
+            "v10": float(io["v10m"][0, lead_time_idx, lat_idx, lon_idx]),
+            "mean_sea_level_pressure": float(io["mslp"][0, lead_time_idx, lat_idx, lon_idx]),
+            "total_precipitation": float(io["p1hl"][0, lead_time_idx, lat_idx, lon_idx]),  # or use "tp" if available
+            "cloud_cover": float(io["refc"][0, lead_time_idx, lat_idx, lon_idx]),  # adjust based on preferred field
+            "temperature_2m": float(io["t2m"][0, lead_time_idx, lat_idx, lon_idx])
+        }
+    }
+
+structured_output = build_forecast_dict(io, lat_idx, lon_idx)
+
+# pprint(structured_output)
+with open("outputs/structured_data.txt", "w") as f:
+    f.write(str(structured_output))
 # %%
 
 # import cartopy
