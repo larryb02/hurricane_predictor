@@ -19,6 +19,8 @@ fc = Forecaster()
 async def hello_world():
     return "Let's get this show on the road."
 
+from datetime import datetime
+
 @app.post('/forecast')
-async def forecast():
+async def forecast(date: datetime, location):
     return fc.forecast(0, 0)
