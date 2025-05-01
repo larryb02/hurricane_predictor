@@ -1,1 +1,2 @@
 earth2studio[stormcast,data]
+fastapi
