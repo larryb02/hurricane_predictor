@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from forecaster.predictor import Forecaster
+from forecaster.Forecaster import Forecaster
 """
 Exposing api for communication between locally hosted nvidia stormcast model and hurricane client
 """
@@ -21,4 +21,4 @@ async def hello_world():
 
 @app.post('/forecast')
 async def forecast():
-    return fc.forecast()
+    return fc.forecast(0, 0)
