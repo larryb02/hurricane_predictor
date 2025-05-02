@@ -19,3 +19,5 @@ RUN chown app /home/app
 USER app
 RUN source ./.hp/bin/activate
 CMD ["fastapi", "run", "main.py", "--host", "0.0.0.0", "--port", "80"]
+
+# DOESNT WORK APPLICATION NEEDS PERMISSIONS TO WRITE TO /HOME/APP DIRECTORY CBA RN
