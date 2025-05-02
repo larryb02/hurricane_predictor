@@ -11,14 +11,19 @@ export default function Home() {
   const [selectedLocation, setSelectedLocation] = useState("");
   const [date, setDate] = useState("");
   const [prediction, setPrediction] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
   const validLocations: Record<string, Location> = {
     "PA": { lon: -77.194527, lat: 41.2033 },
     "NY": { lon: -74.0060, lat: 40.7128 },
     "FL": { lon: -81.5158, lat: 27.6648 }
   };
 
-  async function getForecast(location: Record<string, Location>, date: string) {
+  async function getForecast(location: Location, date: string) {
+    if (!location || location.lon == undefined || location.lat == undefined) {
+      console.log(`cannot use null values!!!!!!!!!~!`);
+      return;
+    }
     console.log(`Parameters: {loc: (${location.lon},${location.lat}), date: ${date}}`);
     const dateTime = new Date(date).toISOString();
     // try {
@@ -52,7 +57,7 @@ export default function Home() {
         <div className={styles.card}>
           <div className={styles.title}>Hurricane Prediction Tool</div>
           <div className={styles.selector}>
-            <select value={selectedLocation} onChange={(e) => setSelectedLocation(e.target.value)}>
+            <select required value={selectedLocation} onChange={(e) => setSelectedLocation(e.target.value)}>
               <option value="" disabled>Select a location</option>
               {Object.entries(validLocations).map(([key, value]) => (
                 <option key={key} value={key}>
@@ -60,7 +65,7 @@ export default function Home() {
                 </option>
               ))}
             </select>
-            <input type="date" onChange={(e) => setDate(e.target.value)} />
+            <input required type="date" onChange={(e) => setDate(e.target.value)} />
             <button onClick={() => { }}>Submit</button>
           </div>
           <div className={styles.loading_container}>
