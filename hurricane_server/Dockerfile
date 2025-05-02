@@ -15,6 +15,7 @@ COPY . .
 FROM base AS runner
 # EXPOSE 3001
 RUN useradd app
+RUN chown app /home/app 
 USER app
 RUN source ./.hp/bin/activate
 CMD ["fastapi", "run", "main.py", "--host", "0.0.0.0", "--port", "80"]

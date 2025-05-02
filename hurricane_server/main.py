@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from forecaster.Forecaster import Forecaster
+from .forecaster.Forecaster import Forecaster
 """
 Exposing api for communication between locally hosted nvidia stormcast model and hurricane client
 """
