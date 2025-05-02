@@ -8,6 +8,7 @@ from earth2studio.io import ZarrBackend
 from earth2studio.models.px import StormCast
 import earth2studio.run as run
 import numpy as np
+from datetime import datetime, timedelta
 
 class Forecaster:
     package = StormCast.load_default_package()
@@ -30,34 +31,53 @@ class Forecaster:
                 dict containing model predictions
         """
         nsteps = 1
-        # today = datetime.today() - timedelta(days=1)
-        date = date.isoformat().split("T")[0]
+        today = datetime.today() - timedelta(days=1)
+        date = today.isoformat().split("T")[0]
         io = run.deterministic(
             [date], nsteps, Forecaster.model, Forecaster.data, self.io
         )
+        # print(io.root.tree())
         # now post process
         # # Assume these are 1D arrays
         lats = io["lat"][:]
         lons = io["lon"][:]
-
-        # Convert -90 to 270 if longitudes are 0–360
-        target_lat = 35.0
-        target_lon = 270.0 if lons.max() > 180 else -90.0
-        # Find the closest indices
-        lat_idx = np.abs(lats - target_lat).argmin()
-        lon_idx = np.abs(lons - target_lon).argmin()
-
+        # ilats = io["ilat"][:]
+        # ilons = io["ilon"][:]
+        # print(f'lats: {lats}\nlons: {lons}\nlat_idx: {ilats}\nlon_idx: {ilons}')
+        
+        
+        # target_lat = 34.0522
+        # target_lon = 260.0001 
+        # find_nearest_grid_point(target_lat, target_lon, lats, lons)
+        indices = find_closest_coords(lat, lon, lats, lons)
+        print(f'indices: {indices}\nlatitude:{io["lat"][indices[0], indices[1]]}, longitude:{io["lon"][indices[0], indices[1]]}')
         try: 
-            fc = build_forecast_dict(io, lat_idx, lon_idx)
+            fc = build_forecast_dict(io, indices[0], indices[1])
             return fc
         except Exception as e:
+            print("Error in forecast: ", e)
             raise e
 
+def find_closest_coords(input_lat, input_lon, lats, lons):
+    min_diff = float('inf')
+    best_row, best_col = None, None
+
+    for i in range(lats.shape[0]):
+        for j in range(lats.shape[1]):
+            lat_diff = abs(lats[i, j] - input_lat)
+            lon_diff = abs(lons[i, j] - input_lon)
+            total_diff = lat_diff + lon_diff
+
+            if total_diff < min_diff:
+                min_diff = total_diff
+                best_row, best_col = i, j
+
+    return best_row, best_col
 
 def build_forecast_dict(io, lat_idx, lon_idx, lead_time_idx=0):
     try:
+        print("creating structure")
         fc = {
-            {
                 "time": int(io["time"][0]),
                 "location": {
                     "latitude": float(io["lat"][lat_idx, lon_idx]),
@@ -82,7 +102,11 @@ def build_forecast_dict(io, lat_idx, lon_idx, lead_time_idx=0):
                     ),
                 },
             }
-        }
+    
+    # import sys
+
+    # print(f'Forecast: {fc}\nSize: {sys.getsizeof(fc)}\n')
         return fc
     except Exception as e:
-        print(e)
+        print("Error in build_forecast_dict: ", e)
+        return {"Error": e}

@@ -25,13 +25,14 @@ fc = Forecaster()
 async def hello_world():
     return "Let's get this show on the road."
 
-from datetime import datetime
-
 @app.post('/forecast')
 # async def forecast(date: datetime, lat, lon):
-async def forecast(loc: Location):
+async def forecast(loc: Location) -> dict:
     try:
+        print(f'This is the date format: {loc.date}')
         res = fc.forecast(loc.date, loc.lat, loc.lon)
+        # print(res)
         return res
-    except:
-        raise HTTPException(status_code=500, detail="Error processing data")
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=f"Error processing data: {e}")
