@@ -1,0 +1,149 @@
+.container {
+    font-family: 'Arial', sans-serif;
+    background-color: #0000;
+    color: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+  }
+  
+  .card {
+    max-width: 600px;
+    width: 100%;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+  }
+  
+  .title {
+    text-align: center;
+    font-size: 2em;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  .selector {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    color: #000;
+  }
+  
+  .selector select,
+  .selector input[type="date"],
+  .selector button {
+    padding: 10px;
+    font-size: 1rem;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    transition: border 0.3s ease;
+    color: #000;
+  }
+  
+  .selector select:focus,
+  .selector input[type="date"]:focus,
+  .selector button:focus {
+    outline: none;
+    border-color: #007BFF;
+    color:black;
+  }
+  
+  .selector select {
+    height: 40px;
+    background-color: #fafafa;
+  }
+  
+  .selector input[type="date"] {
+    background-color: #fafafa;
+    color: black;
+  }
+
+  .selector ::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+}
+  
+  .selector button {
+    background-color: #007BFF;
+    color: black;
+    cursor: pointer;
+    border: none;
+  }
+  
+  .selector button:hover {
+    background-color: #0056b3;
+  }
+  
+  .output {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #f0f0f0;
+    border-radius: 10px;
+    display: none;
+  }
+  
+  .selector button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+  }
+  
+  .loading_container {
+    color: white;
+    text-align: center;
+    font-size: 1.2rem;
+    padding: 10px;
+    margin-top: 20px;
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+    width: 100%;
+  }
+  
+  /* Media Queries for Responsiveness */
+  
+  /* Tablets */
+  @media (max-width: 768px) {
+    .container {
+      padding: 10px;
+    }
+  
+    .card {
+      padding: 15px;
+      max-width: 90%;
+    }
+  
+    .title {
+      font-size: 1.5em;
+    }
+  
+    .selector select,
+    .selector input[type="date"],
+    .selector button {
+      font-size: 0.9rem;
+    }
+  }
+  
+  /* Mobile Phones */
+  @media (max-width: 480px) {
+    .card {
+      padding: 10px;
+      max-width: 100%;
+    }
+  
+    .title {
+      font-size: 1.2em;
+    }
+  
+    .selector select,
+    .selector input[type="date"],
+    .selector button {
+      font-size: 0.85rem;
+    }
+  
+    .selector {
+      gap: 12px;
+    }
+  }
+  
