@@ -7,9 +7,9 @@ export default function Home() {
   const [selectedLocation, setSelectedLocation] = useState("");
   const [date, setDate] = useState("");
   const validLocations = {
-    "PA": 0.0,
-    "NY": 0.0,
-    "NJ": 0.0
+    "PA": {"lon": -77.194527, "lat": 41.2033},
+    "NY": {"lon": -74.0060, "lat": 40.7128},
+    "FL": {"lon": -81.5158, "lat": 27.6648}
   }; // key = location_name, value = (long,lat)
 
   async function getForecast(location: string, date: string)
