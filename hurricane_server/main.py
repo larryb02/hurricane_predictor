@@ -22,5 +22,7 @@ async def hello_world():
 from datetime import datetime
 
 @app.post('/forecast')
-async def forecast(date: datetime, location):
-    return fc.forecast(0, 0)
+async def forecast(date: datetime, lat, lon):
+    lat = 0
+    lon = 0
+    return fc.forecast(date, lat, lon)
