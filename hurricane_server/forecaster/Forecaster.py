@@ -9,7 +9,6 @@ from earth2studio.models.px import StormCast
 import earth2studio.run as run
 import numpy as np
 
-
 class Forecaster:
     package = StormCast.load_default_package()
     model = StormCast.load_model(package)
@@ -48,28 +47,42 @@ class Forecaster:
         lat_idx = np.abs(lats - target_lat).argmin()
         lon_idx = np.abs(lons - target_lon).argmin()
 
-        return build_forecast_dict(io, lat_idx, lon_idx)
+        try: 
+            fc = build_forecast_dict(io, lat_idx, lon_idx)
+            return fc
+        except Exception as e:
+            raise e
 
 
 def build_forecast_dict(io, lat_idx, lon_idx, lead_time_idx=0):
-    return {
-        "time": int(io["time"][0]),
-        "location": {
-            "latitude": float(io["lat"][lat_idx, lon_idx]),
-            "longitude": float(io["lon"][lat_idx, lon_idx]),
-        },
-        "forecast": {
-            "zonal_wind": float(io["u10m"][0, lead_time_idx, lat_idx, lon_idx]),
-            "meridional_wind": float(io["v10m"][0, lead_time_idx, lat_idx, lon_idx]),
-            "mean_sea_level_pressure": float(
-                io["mslp"][0, lead_time_idx, lat_idx, lon_idx]
-            ),
-            "total_precipitation": float(
-                io["p1hl"][0, lead_time_idx, lat_idx, lon_idx]
-            ),  # or use "tp" if available
-            "cloud_cover": float(
-                io["refc"][0, lead_time_idx, lat_idx, lon_idx]
-            ),  # adjust based on preferred field
-            "temperature_2m": float(io["t2m"][0, lead_time_idx, lat_idx, lon_idx]),
-        },
-    }
+    try:
+        fc = {
+            {
+                "time": int(io["time"][0]),
+                "location": {
+                    "latitude": float(io["lat"][lat_idx, lon_idx]),
+                    "longitude": float(io["lon"][lat_idx, lon_idx]),
+                },
+                "forecast": {
+                    "zonal_wind": float(io["u10m"][0, lead_time_idx, lat_idx, lon_idx]),
+                    "meridional_wind": float(
+                        io["v10m"][0, lead_time_idx, lat_idx, lon_idx]
+                    ),
+                    "mean_sea_level_pressure": float(
+                        io["mslp"][0, lead_time_idx, lat_idx, lon_idx]
+                    ),
+                    "total_precipitation": float(
+                        io["p1hl"][0, lead_time_idx, lat_idx, lon_idx]
+                    ),  # or use "tp" if available
+                    "cloud_cover": float(
+                        io["refc"][0, lead_time_idx, lat_idx, lon_idx]
+                    ),  # adjust based on preferred field
+                    "temperature_2m": float(
+                        io["t2m"][0, lead_time_idx, lat_idx, lon_idx]
+                    ),
+                },
+            }
+        }
+        return fc
+    except Exception as e:
+        print(e)
