@@ -11,7 +11,7 @@ Simple web server powered by nextjs. This is what the user will interact with to
 ## Server Side
 API to facilitate interactions with StormCast model
 # Tools
-NVIDIA StormCast - Pretrained Model
-Nextjs
-FastAPI
+NVIDIA StormCast - Pretrained Model <br>
+Nextjs <br>
+FastAPI <br>
 OpenAI
