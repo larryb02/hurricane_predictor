@@ -17,10 +17,11 @@ class Forecaster:
     conditioning_data_source = GFS_FX()
     model.conditioning_data_source = conditioning_data_source
 
+    # welp have to initialize zarr backend every time i run a forecast...
     def __init__(self):
-        self.io = ZarrBackend()
+        pass
 
-    def forecast(self, date, lat, lon):
+    def forecast(self, date, target_lat, target_lon):
         """
         Generates a deterministic output
         params:
@@ -30,11 +31,13 @@ class Forecaster:
             Dict
                 dict containing model predictions
         """
+        io = ZarrBackend()
         nsteps = 1
-        today = datetime.today() - timedelta(days=1)
-        date = today.isoformat().split("T")[0]
+        # today = datetime.today() - timedelta(days=1)
+        print("Date: ", date)
+        date = date.isoformat().split("T")[0]
         io = run.deterministic(
-            [date], nsteps, Forecaster.model, Forecaster.data, self.io
+            [date], nsteps, Forecaster.model, Forecaster.data, io
         )
         # print(io.root.tree())
         # now post process
@@ -49,7 +52,7 @@ class Forecaster:
         # target_lat = 34.0522
         # target_lon = 260.0001 
         # find_nearest_grid_point(target_lat, target_lon, lats, lons)
-        indices = find_closest_coords(lat, lon, lats, lons)
+        indices = find_closest_coords(target_lat, target_lon, lats, lons)
         print(f'indices: {indices}\nlatitude:{io["lat"][indices[0], indices[1]]}, longitude:{io["lon"][indices[0], indices[1]]}')
         try: 
             fc = build_forecast_dict(io, indices[0], indices[1])
