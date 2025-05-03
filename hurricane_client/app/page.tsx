@@ -30,13 +30,17 @@ export default function Home() {
       setIsLoading(true);
       const dateTime = new Date(date).toISOString();
       console.log(dateTime);
-      const res = await fetch(`http://35.221.13.68:8000/forecast`,
+      const res = await fetch(`/api/forecast`,
         {
           headers: {
             'Content-Type': 'application/json'
           }, method: 'POST',
           body: JSON.stringify({ date: dateTime, lon: validLocations[selectedLocation].lon, lat: validLocations[selectedLocation].lat })
         });
+      if (!res.ok) {
+        setError("Error fetching forecast, please try again.");
+        return;
+      }
       const json = await res.json();
       console.log(json);
       const prediction = await predict(json);
@@ -45,7 +49,7 @@ export default function Home() {
     }
     catch (err) {
       console.log("Error fetching forecast: ", err);
-      setError("Error fetching forecast");
+      setError("Error fetching forecast, please try again.");
     }
     finally {
       setIsLoading(false);
@@ -53,7 +57,7 @@ export default function Home() {
   }
 
   async function predict(data: any) {
-    const prediction = await fetch("/prediction", { headers: { 'Content-Type': 'application/json' }, method: 'POST', body: JSON.stringify({ forecast: data }) });
+    const prediction = await fetch("/api/prediction", { headers: { 'Content-Type': 'application/json' }, method: 'POST', body: JSON.stringify({ forecast: data }) });
     const json = await prediction.json();
     return json;
   }
