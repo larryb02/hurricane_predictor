@@ -30,7 +30,7 @@ export default function Home() {
       setIsLoading(true);
       const dateTime = new Date(date).toISOString();
       console.log(dateTime);
-      const res = await fetch(`/api/forecast`,
+      const res = await fetch(`https://gpu.educodeai.net/forecast`,
         {
           headers: {
             'Content-Type': 'application/json'
