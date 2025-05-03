@@ -10,7 +10,7 @@ app = FastAPI(title='Hurricane Prediction Server', description='Silly little pro
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["https://hurricane-predictor.vercel.app"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
