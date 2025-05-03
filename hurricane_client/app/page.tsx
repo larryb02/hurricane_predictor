@@ -8,6 +8,7 @@ type Location = {
 };
 
 export default function Home() {
+  const pageTitle = "StormWatch"
   const [selectedLocation, setSelectedLocation] = useState("");
   const [date, setDate] = useState("");
   const [prediction, setPrediction] = useState("");
@@ -25,37 +26,46 @@ export default function Home() {
       return;
     }
     console.log(`Parameters: {loc: (${location.lon},${location.lat}), date: ${date}}`);
-    const dateTime = new Date(date).toISOString();
-    // try {
-    //   const dateTime = new Date(date).toISOString();
-    //   console.log(dateTime);
-    //   const res = await fetch(`http://35.221.13.68:8000/forecast`,
-    //     {
-    //       headers: {
-    //         'Content-Type': 'application/json'
-    //       }, method: 'POST',
-    //       body: JSON.stringify({ date: dateTime, lon: validLocations[selectedLocation].lon, lat: validLocations[selectedLocation].lat })
-    //     });
-    //   const json = await res.json();
-    //   // then just log the output 
-    //   console.log(json);
-    // }
-    // catch (err) {
-    //   console.log("Error fetching forecast: ", err);
-    // }
+    try {
+      setIsLoading(true);
+      const dateTime = new Date(date).toISOString();
+      console.log(dateTime);
+      const res = await fetch(`https://gpu.educodeai.net/forecast`,
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }, method: 'POST',
+          body: JSON.stringify({ date: dateTime, lon: validLocations[selectedLocation].lon, lat: validLocations[selectedLocation].lat })
+        });
+      if (!res.ok) {
+        setError("Error fetching forecast, please try again.");
+        return;
+      }
+      const json = await res.json();
+      console.log(json);
+      const prediction = await predict(json);
+      setPrediction(prediction.body);
+      console.log(prediction);
+    }
+    catch (err) {
+      console.log("Error fetching forecast: ", err);
+      setError("Error fetching forecast, please try again.");
+    }
+    finally {
+      setIsLoading(false);
+    }
+  }
 
-    setIsLoading(true);
-    const prediction = await fetch("/prediction", { headers: { 'Content-Type': 'application/json' }, method: 'POST', body: JSON.stringify({ date: dateTime, data: {} }) });
+  async function predict(data: any) {
+    const prediction = await fetch("/api/prediction", { headers: { 'Content-Type': 'application/json' }, method: 'POST', body: JSON.stringify({ forecast: data }) });
     const json = await prediction.json();
-    console.log(json);
-    setIsLoading(false);
-
+    return json;
   }
   if (isLoading) {
     return (
       <div className={styles.container}>
         <div className={styles.card}>
-          <div className={styles.title}>Hurricane Prediction Tool</div>
+          <div className={styles.title}>{pageTitle}</div>
           <div className={styles.selector}>
             <select required value={selectedLocation} onChange={(e) => setSelectedLocation(e.target.value)}>
               <option value="" disabled>Select a location</option>
@@ -69,44 +79,17 @@ export default function Home() {
             <button onClick={() => { }}>Submit</button>
           </div>
           <div className={styles.loading_container}>
-          Loading...
-        </div>
+            <span>Loading...</span>
+          </div>
         </div>
       </div>
 
     );
   }
-  //   return (
-  //     <div className="container">
-  //       <div className="Title">
-  //         Hurricane Prediction Tool
-  //       </div>
-  //       <div className="selector" style={styles.selector}>
-  //         <select
-  //           value={selectedLocation}
-  //           onChange={(e) => setSelectedLocation(e.target.value)}>
-  //           <option value="" disabled>
-  //             Select a location
-  //           </option>
-  //           {Object.entries(validLocations).map(([key, value]) => (
-  //             <option key={key} value={key}>
-  //               {key}
-  //             </option>
-  //           ))}
-  //         </select>
-  //         <input type="date" onChange={(e) => setDate(e.target.value)}></input>
-  //         <button onClick={() => { getForecast(validLocations[selectedLocation], date) }}>Submit</button>
-  //       </div>
-  //       <div className="Output">
-
-  //       </div>
-  //     </div>
-  //   );
-  // }
   return (
     <div className={styles.container}>
       <div className={styles.card}>
-        <div className={styles.title}>Hurricane Prediction Tool</div>
+        <div className={styles.title}>{pageTitle}</div>
         <div className={styles.selector}>
           <select value={selectedLocation} onChange={(e) => setSelectedLocation(e.target.value)}>
             <option value="" disabled>Select a location</option>
@@ -119,7 +102,10 @@ export default function Home() {
           <input type="date" onChange={(e) => setDate(e.target.value)} />
           <button onClick={() => { getForecast(validLocations[selectedLocation], date) }}>Submit</button>
         </div>
-        <div className={styles.output}></div>
+        {prediction && (<div className={styles.output}>{prediction}</div>)}
+        {error && (<div className={styles.output}>
+          {error}
+        </div>)}
       </div>
     </div>
   );
